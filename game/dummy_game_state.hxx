@@ -14,45 +14,24 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "game_state_manager.hxx"
+#ifndef OVENBRICK_DUMMY_GAME_STATE_HXX
+#define OVENBRICK_DUMMY_GAME_STATE_HXX
+
 #include "game_state.hxx"
 
-GameStateManager & GameStateManager::singleton()
+struct DummyGameState final : public GameState
 {
-  static GameStateManager instance {};
-  return instance;
-}
+  DummyGameState() = default;
 
-void GameStateManager::push_state(gsl::not_null<GameState *> state)
-{
-  m_states.push(std::unique_ptr<GameState> {state});
-  current().set_up();
-}
+  ~DummyGameState() override = default;
 
-void GameStateManager::pop_state()
-{
-  current().tear_down();
-  m_states.pop();
-}
+  void set_up() override;
 
-bool GameStateManager::is_empty() const
-{
-  return m_states.empty();
-}
+  void handle_event(sf::Event const & event) override;
 
-GameState & GameStateManager::current() const
-{
-  return *m_states.top();
-}
+  void update(sf::Time const & elapsed) override;
 
-void GameStateManager::handle_event(sf::Event const & event) const
-{
-  if (!is_empty())
-    current().handle_event(event);
-}
+  void tear_down() override;
+};
 
-void GameStateManager::update(sf::Time const & elapsed) const
-{
-  if (!is_empty())
-    current().update(elapsed);
-}
+#endif // OVENBRICK_DUMMY_GAME_STATE_HXX

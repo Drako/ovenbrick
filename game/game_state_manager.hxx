@@ -24,7 +24,13 @@
 
 struct GameState;
 
-class GameStateManager
+namespace sf {
+  class Event;
+
+  class Time;
+}
+
+class GameStateManager final
 {
   std::stack<std::unique_ptr<GameState>> m_states;
 
@@ -59,6 +65,18 @@ public:
    * @return The current game state.
    */
   GameState & current() const;
+
+  /**
+   * @brief Forward the event to the currently active state.
+   * @param event The event which occurred.
+   */
+  void handle_event(sf::Event const & event) const;
+
+  /**
+   * @brief Update the currently active state.
+   * @param elapsed The elapsed time since the last call to update.
+   */
+  void update(sf::Time const & elapsed) const;
 };
 
 #endif // OVENBRICK_GAME_STATE_MANAGER_HXX

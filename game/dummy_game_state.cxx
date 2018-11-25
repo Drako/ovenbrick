@@ -14,45 +14,27 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "dummy_game_state.hxx"
 #include "game_state_manager.hxx"
-#include "game_state.hxx"
 
-GameStateManager & GameStateManager::singleton()
+#include <SFML/System/Time.hpp>
+
+#include <SFML/Window/Event.hpp>
+
+void DummyGameState::set_up()
 {
-  static GameStateManager instance {};
-  return instance;
 }
 
-void GameStateManager::push_state(gsl::not_null<GameState *> state)
+void DummyGameState::handle_event(sf::Event const & event)
 {
-  m_states.push(std::unique_ptr<GameState> {state});
-  current().set_up();
+  if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+    GameStateManager::singleton().pop_state();
 }
 
-void GameStateManager::pop_state()
+void DummyGameState::update(sf::Time const & /* elapsed */)
 {
-  current().tear_down();
-  m_states.pop();
 }
 
-bool GameStateManager::is_empty() const
+void DummyGameState::tear_down()
 {
-  return m_states.empty();
-}
-
-GameState & GameStateManager::current() const
-{
-  return *m_states.top();
-}
-
-void GameStateManager::handle_event(sf::Event const & event) const
-{
-  if (!is_empty())
-    current().handle_event(event);
-}
-
-void GameStateManager::update(sf::Time const & elapsed) const
-{
-  if (!is_empty())
-    current().update(elapsed);
 }

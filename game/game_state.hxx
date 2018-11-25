@@ -17,11 +17,36 @@
 #ifndef OVENBRICK_GAME_STATE_HXX
 #define OVENBRICK_GAME_STATE_HXX
 
+namespace sf {
+  class Event;
+  class Time;
+}
+
 struct GameState
 {
   virtual ~GameState() = default;
 
-  virtual void run() = 0;
+  /**
+   * @brief Lifecycle function called by the GameStateManager when the state is added.
+   */
+  virtual void set_up() = 0;
+
+  /**
+   * @brief Lifecycle function called whenever an event occurs.
+   * @param event The event which occurred.
+   */
+  virtual void handle_event(sf::Event const & event) = 0;
+
+  /**
+   * @brief Lifecycle function called whenever the world should be updated.
+   * @param elapsed Time elapsed since the last call to update.
+   */
+  virtual void update(sf::Time const & elapsed) = 0;
+
+  /**
+   * @brief Lifecycle function called when the state is removed.
+   */
+  virtual void tear_down() = 0;
 };
 
 #endif // OVENBRICK_GAME_STATE_HXX

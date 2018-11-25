@@ -22,30 +22,56 @@
 #include "../game/game_state.hxx"
 
 namespace {
-  class MockGameState final : public GameState
+  struct MockGameState final : public GameState
   {
-    bool * m_destructed;
+    struct Info
+    {
+      bool m_destructor = false;
+      int m_setup = 0;
+      int m_update = 0;
+      int m_event = 0;
+      int m_teardown = 0;
+    };
+
+  private:
+    Info * m_info;
 
   public:
-    explicit MockGameState(bool * destructed = nullptr)
-        : m_destructed {destructed}
+    explicit MockGameState(Info * info = nullptr)
+        : m_info {info}
     {
-      if (m_destructed)
-      {
-        *m_destructed = false;
-      }
+      if (m_info)
+        *m_info = Info {};
     }
 
     ~MockGameState() override
     {
-      if (m_destructed)
-      {
-        *m_destructed = true;
-      }
+      if (m_info)
+        m_info->m_destructor = true;
     }
 
-    void run() override
+    void set_up() override
     {
+      if (m_info)
+        ++m_info->m_setup;
+    }
+
+    void update(sf::Time const & elapsed) override
+    {
+      if (m_info)
+        ++m_info->m_update;
+    }
+
+    void handle_event(sf::Event const & event) override
+    {
+      if (m_info)
+        ++m_info->m_event;
+    }
+
+    void tear_down() override
+    {
+      if (m_info)
+        ++m_info->m_teardown;
     }
   };
 }
@@ -89,19 +115,20 @@ TEST_CASE("GameStateManager", "[core][GameStateManager]")
     constexpr auto const NUM_GAME_STATES = 5;
 
     std::array<GameState *, NUM_GAME_STATES> states {};
-    bool destructed[NUM_GAME_STATES];
+    MockGameState::Info mockInfos[NUM_GAME_STATES];
 
     for (auto n = NUM_GAME_STATES; n--;)
     {
-      states[n] = new MockGameState {destructed + n};
+      states[n] = new MockGameState {mockInfos + n};
       gsm.push_state(gsl::make_not_null(states[n]));
-      REQUIRE(!destructed[n]);
+      REQUIRE(mockInfos[n].m_setup == 1);
     }
 
     for (auto n = 0; n < NUM_GAME_STATES; ++n) // NOLINT(modernize-loop-convert)
     {
       gsm.pop_state();
-      REQUIRE(destructed[n]);
+      REQUIRE(mockInfos[n].m_teardown == 1);
+      REQUIRE(mockInfos[n].m_destructor);
     }
 
     REQUIRE(gsm.is_empty());

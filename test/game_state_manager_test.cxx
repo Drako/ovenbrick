@@ -21,15 +21,6 @@
 #include "../game/game_state_manager.hxx"
 #include "../game/game_state.hxx"
 
-TEST_CASE("GameStateManager is a singleton", "[GameStateManager]")
-{
-  REQUIRE(!std::is_constructible<GameStateManager>::value);
-
-  auto const & a = GameStateManager::singleton();
-  auto const & b = GameStateManager::singleton();
-  REQUIRE(std::addressof(a) == std::addressof(b));
-}
-
 namespace {
   class MockGameState final : public GameState
   {
@@ -59,45 +50,60 @@ namespace {
   };
 }
 
-TEST_CASE("Current GameState works", "[GameStateManager]")
+TEST_CASE("GameStateManager", "[core][GameStateManager]")
 {
   auto & gsm = GameStateManager::singleton();
 
-  constexpr auto const NUM_GAME_STATES = 5;
-
-  std::array<GameState *, NUM_GAME_STATES> states{};
-
-  for (auto n = NUM_GAME_STATES; n--;)
+  SECTION("GameStateManager is a singleton")
   {
-    states[n] = new MockGameState;
-    gsm.push_state(gsl::make_not_null(states[n]));
-    REQUIRE(std::addressof(gsm.current()) == states[n]);
+    REQUIRE(!std::is_constructible<GameStateManager>::value);
+
+    auto const & other = GameStateManager::singleton();
+    REQUIRE(std::addressof(gsm) == std::addressof(other));
   }
 
-  for (auto n = 1; n < NUM_GAME_STATES - 1; ++n) {
-    gsm.pop_state();
-    REQUIRE(std::addressof(gsm.current()) == states[n]);
-  }
-}
-
-TEST_CASE("GameStates are cleaned up", "[GameStateManager]")
-{
-  auto & gsm = GameStateManager::singleton();
-
-  constexpr auto const NUM_GAME_STATES = 5;
-
-  std::array<GameState *, NUM_GAME_STATES> states{};
-  bool destructed[NUM_GAME_STATES];
-
-  for (auto n = NUM_GAME_STATES; n--;)
+  SECTION("Current GameState works")
   {
-    states[n] = new MockGameState{destructed + n};
-    gsm.push_state(gsl::make_not_null(states[n]));
-    REQUIRE(!destructed[n]);
+    constexpr auto const NUM_GAME_STATES = 5;
+
+    std::array<GameState *, NUM_GAME_STATES> states {};
+
+    for (auto n = NUM_GAME_STATES; n--;)
+    {
+      states[n] = new MockGameState;
+      gsm.push_state(gsl::make_not_null(states[n]));
+      REQUIRE(std::addressof(gsm.current()) == states[n]);
+    }
+
+    for (auto n = 0; n < NUM_GAME_STATES; ++n)
+    {
+      REQUIRE(std::addressof(gsm.current()) == states[n]);
+      gsm.pop_state();
+    }
+
+    REQUIRE(gsm.is_empty());
   }
 
-  for (auto n = 0; n < NUM_GAME_STATES; ++n) { // NOLINT(modernize-loop-convert)
-    gsm.pop_state();
-    REQUIRE(destructed[n]);
+  SECTION("GameStates are cleaned up")
+  {
+    constexpr auto const NUM_GAME_STATES = 5;
+
+    std::array<GameState *, NUM_GAME_STATES> states {};
+    bool destructed[NUM_GAME_STATES];
+
+    for (auto n = NUM_GAME_STATES; n--;)
+    {
+      states[n] = new MockGameState {destructed + n};
+      gsm.push_state(gsl::make_not_null(states[n]));
+      REQUIRE(!destructed[n]);
+    }
+
+    for (auto n = 0; n < NUM_GAME_STATES; ++n) // NOLINT(modernize-loop-convert)
+    {
+      gsm.pop_state();
+      REQUIRE(destructed[n]);
+    }
+
+    REQUIRE(gsm.is_empty());
   }
 }

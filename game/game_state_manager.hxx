@@ -49,6 +49,12 @@ public:
   void pop_state();
 
   /**
+   * @brief Check whether there are any game states.
+   * @return true, if there are game states on the stack, false otherwise.
+   */
+  bool is_empty() const;
+
+  /**
    * @brief Acquire the current game state.
    * @return The current game state.
    */

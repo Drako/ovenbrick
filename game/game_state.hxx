@@ -17,7 +17,8 @@
 #ifndef OVENBRICK_GAME_STATE_HXX
 #define OVENBRICK_GAME_STATE_HXX
 
-struct GameState {
+struct GameState
+{
   virtual ~GameState() = default;
 
   virtual void run() = 0;

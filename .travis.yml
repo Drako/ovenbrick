@@ -1,0 +1,16 @@
+language: cpp
+sudo: required
+dist: xenial
+compiler:
+  - gcc
+  - clang
+os:
+  - linux
+install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libxrandr-dev libudev-dev libgl1-mesa-dev libopenal-dev libflac-dev libvorbis-dev
+before_script:
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
+script: cmake --build . && ctest .

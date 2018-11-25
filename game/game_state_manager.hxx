@@ -50,7 +50,7 @@ public:
 
   /**
    * @brief Check whether there are any game states.
-   * @return true, if there are game states on the stack, false otherwise.
+   * @return false, if there are game states on the stack, true otherwise.
    */
   bool is_empty() const;
 

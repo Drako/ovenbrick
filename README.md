@@ -1,6 +1,6 @@
 # OvenBrick
 
-![GitHub](https://img.shields.io/github/license/Drako/ovenbrick.svg)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/Drako/ovenbrick/blob/master/COPYING)
 
 OvenBrick is a trading card game loosely based on another popular game with a similar name.
 The plan is to run it on [this thing](https://www.clockworkpi.com/), which supports a resolution of 320x240.

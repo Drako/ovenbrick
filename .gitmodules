@@ -1,3 +1,6 @@
 [submodule "contrib/SFML"]
 	path = contrib/SFML
 	url = https://github.com/SFML/SFML
+[submodule "contrib/GSL"]
+	path = contrib/GSL
+	url = https://github.com/Microsoft/GSL

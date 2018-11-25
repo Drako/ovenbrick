@@ -22,7 +22,7 @@ cd "${DIR}"
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ../..
-cmake --build . -j 4
+cmake --build . --target ovenbrick -- -j 4
 
 # install
 echo "${DIR}/build/ovenbrick" > /home/cpi/apps/launcher/Menu/GameShell/ovenbrick.sh

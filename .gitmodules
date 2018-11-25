@@ -4,3 +4,6 @@
 [submodule "contrib/GSL"]
 	path = contrib/GSL
 	url = https://github.com/Microsoft/GSL
+[submodule "contrib/Catch2"]
+	path = contrib/Catch2
+	url = https://github.com/catchorg/Catch2

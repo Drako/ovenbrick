@@ -83,6 +83,10 @@ TEST_CASE("GameStateManager", "[core][GameStateManager]")
   SECTION("GameStateManager is a singleton")
   {
     REQUIRE(!std::is_constructible<GameStateManager>::value);
+    REQUIRE(!std::is_copy_constructible<GameStateManager>::value);
+    REQUIRE(!std::is_copy_assignable<GameStateManager>::value);
+    REQUIRE(!std::is_move_constructible<GameStateManager>::value);
+    REQUIRE(!std::is_move_assignable<GameStateManager>::value);
 
     auto const & other = GameStateManager::singleton();
     REQUIRE(std::addressof(gsm) == std::addressof(other));

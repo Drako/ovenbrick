@@ -22,6 +22,8 @@
 
 #include <gsl/pointers>
 
+#include <SFML/System/NonCopyable.hpp>
+
 struct GameState;
 
 namespace sf {
@@ -30,7 +32,7 @@ namespace sf {
   class Time;
 }
 
-class GameStateManager final
+class GameStateManager final : private sf::NonCopyable
 {
   std::stack<std::unique_ptr<GameState>> m_states;
 

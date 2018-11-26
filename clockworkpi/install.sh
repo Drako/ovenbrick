@@ -11,7 +11,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null && pwd )"
 
 # install SFML dependencies
 sudo apt-get -qq update
-sudo apt-get install -y libxrandr-dev libudev-dev libgl1-mesa-dev libopenal-dev libflac-dev libvorbis-dev
+sudo apt-get install -y libxrandr-dev libudev-dev libgl1-mesa-dev libopenal-dev libflac-dev libvorbis-dev libboost-all-dev
 
 # checkout dependencies
 cd ..

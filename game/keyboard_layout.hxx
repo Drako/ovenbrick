@@ -14,29 +14,39 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "dummy_game_state.hxx"
-#include "game_state_manager.hxx"
-#include "keyboard_layout.hxx"
-
-#include <SFML/System/Time.hpp>
+#ifndef OVENBRICK_KEYBOARD_LAYOUT_HXX
+#define OVENBRICK_KEYBOARD_LAYOUT_HXX
 
 #include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Event.hpp>
 
-void DummyGameState::set_up()
-{
-}
+#include <string>
 
-void DummyGameState::handle_event(sf::Event const & event)
+struct KeyboardLayout final
 {
-  if (event.type == sf::Event::KeyPressed && event.key.code == KeyboardLayout::current.m_keyMenu)
-    GameStateManager::singleton().pop_state();
-}
+  using key_type = sf::Keyboard::Key;
+  using sfk = sf::Keyboard;
 
-void DummyGameState::update(sf::Time const & /* elapsed */)
-{
-}
+  key_type m_keyUp;
+  key_type m_keyDown;
+  key_type m_keyLeft;
+  key_type m_keyRight;
 
-void DummyGameState::tear_down()
-{
-}
+  key_type m_keyA;
+  key_type m_keyB;
+  key_type m_keyX;
+  key_type m_keyY;
+
+  key_type m_keyMenu;
+
+  key_type m_keyStart;
+  key_type m_keySelect;
+
+  char const * m_name;
+
+  static KeyboardLayout current;
+
+  static KeyboardLayout const XBOX;
+  static KeyboardLayout const SNES;
+};
+
+#endif // OVENBRICK_KEYBOARD_LAYOUT_HXX

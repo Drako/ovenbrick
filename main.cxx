@@ -21,15 +21,93 @@
 #include <SFML/Window/WindowStyle.hpp>
 #include <SFML/Window/VideoMode.hpp>
 
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/program_options.hpp>
+
 #include <cstdlib>
+#include <iostream>
+#include <unordered_map>
 
 #include "game/game_state_manager.hxx"
 #include "game/game_state.hxx"
 #include "game/dummy_game_state.hxx"
+#include "game/keyboard_layout.hxx"
 
-int main()
+namespace logging = boost::log;
+namespace po = boost::program_options;
+
+void init_logging(logging::trivial::severity_level minimum_level)
 {
+  logging::add_file_log("ovenbrick.log");
+
+  logging::core::get()->set_filter(logging::trivial::severity >= minimum_level);
+}
+
+void validate(boost::any & value, std::vector<std::string> const & values, KeyboardLayout *, int)
+{
+  static std::unordered_map<std::string, KeyboardLayout> const supportedLayouts {
+      {"xbox", KeyboardLayout::XBOX},
+      {"snes", KeyboardLayout::SNES},
+  };
+
+  po::validators::check_first_occurrence(value);
+  auto const & single = po::validators::get_single_string(values);
+
+  auto const it = supportedLayouts.find(single);
+  if (it != std::cend(supportedLayouts))
+    value = it->second;
+  else
+    throw po::validation_error {po::validation_error::invalid_option_value}; // NOLINT(cert-err60-cpp)
+}
+
+bool handle_command_line(int argc, char ** argv)
+{
+  po::options_description desc {"Allowed options"};
+  desc.add_options()
+      ("help,h", "show this help")
+      (
+          "key-layout,k",
+          po::value<KeyboardLayout>(&KeyboardLayout::current)->default_value(KeyboardLayout::SNES, "snes"),
+          "set the keyboard layout to use (xbox,snes)"
+      )
+      (
+          "log-level,l",
+          po::value<logging::trivial::severity_level>()->default_value(logging::trivial::info, "info"),
+          "set the minimum log level (trace,debug,info,warning,error,fatal)"
+      );
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+
+  if (vm.count("help"))
+  {
+    std::cout << desc << std::endl;
+    return false;
+  }
+
+  init_logging(vm["log-level"].as<logging::trivial::severity_level>());
+
+  return true;
+}
+
+/**
+ * @brief Main entry point.
+ * @param argc Number of command line parameters (including the program name).
+ * @param argv Parameters as an array of strings.
+ * @return 0 in most cases.
+ */
+int main(int argc, char ** argv)
+{
+  if (!handle_command_line(argc, argv))
+    return EXIT_SUCCESS;
+
+  BOOST_LOG_TRIVIAL(info) << "Oven Brick";
+  BOOST_LOG_TRIVIAL(info) << "Using keyboard layout: " << KeyboardLayout::current.m_name;
+
   auto const desktopMode = sf::VideoMode::getDesktopMode();
+  BOOST_LOG_TRIVIAL(info)
+    << "Resolution: " << desktopMode.width << "x" << desktopMode.height << " (" << desktopMode.bitsPerPixel << " Bits)";
   auto const style = sf::Style::Fullscreen;
 
   sf::Window mainWindow {desktopMode, "Oven Brick", style};

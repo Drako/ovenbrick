@@ -79,7 +79,7 @@ bool handle_command_line(int argc, char ** argv)
       (
           "log-file,f",
           po::value<std::string>()->default_value("ovenbrick.log"),
-          "set the minimum log level (trace,debug,info,warning,error,fatal)"
+          "set the path of the log file"
       );
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);

@@ -25,5 +25,5 @@ cmake -DCMAKE_BUILD_TYPE=Release ../..
 cmake --build . --target ovenbrick -- -j 4
 
 # install
-echo "${DIR}/build/ovenbrick" > /home/cpi/apps/launcher/Menu/GameShell/ovenbrick.sh
+echo "\"${DIR}/build/ovenbrick\" -f \"${DIR}/build/ovenbrick.log\"" > /home/cpi/apps/launcher/Menu/GameShell/ovenbrick.sh
 chmod +x /home/cpi/apps/launcher/Menu/GameShell/ovenbrick.sh

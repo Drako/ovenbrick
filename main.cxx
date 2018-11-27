@@ -37,9 +37,9 @@
 namespace logging = boost::log;
 namespace po = boost::program_options;
 
-void init_logging(logging::trivial::severity_level minimum_level)
+void init_logging(logging::trivial::severity_level minimum_level, std::string const & filename)
 {
-  logging::add_file_log("ovenbrick.log");
+  logging::add_file_log(filename);
 
   logging::core::get()->set_filter(logging::trivial::severity >= minimum_level);
 }
@@ -75,6 +75,11 @@ bool handle_command_line(int argc, char ** argv)
           "log-level,l",
           po::value<logging::trivial::severity_level>()->default_value(logging::trivial::info, "info"),
           "set the minimum log level (trace,debug,info,warning,error,fatal)"
+      )
+      (
+          "log-file,f",
+          po::value<std::string>()->default_value("ovenbrick.log"),
+          "set the minimum log level (trace,debug,info,warning,error,fatal)"
       );
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -86,7 +91,10 @@ bool handle_command_line(int argc, char ** argv)
     return false;
   }
 
-  init_logging(vm["log-level"].as<logging::trivial::severity_level>());
+  init_logging(
+      vm["log-level"].as<logging::trivial::severity_level>(),
+      vm["log-file"].as<std::string>()
+  );
 
   return true;
 }

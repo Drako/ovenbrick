@@ -7,3 +7,9 @@
 [submodule "contrib/Catch2"]
 	path = contrib/Catch2
 	url = https://github.com/catchorg/Catch2
+[submodule "contrib/FiraCode"]
+	path = contrib/FiraCode
+	url = https://github.com/tonsky/FiraCode
+[submodule "contrib/incbin"]
+	path = contrib/incbin
+	url = https://github.com/graphitemaster/incbin

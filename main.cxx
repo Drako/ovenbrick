@@ -114,11 +114,16 @@ int main(int argc, char ** argv)
   BOOST_LOG_TRIVIAL(info) << "Using keyboard layout: " << KeyboardLayout::current.m_name;
 
   auto const desktopMode = sf::VideoMode::getDesktopMode();
+  auto const desiredMode = sf::VideoMode {320, 240, 24};
   BOOST_LOG_TRIVIAL(info)
-    << "Resolution: " << desktopMode.width << "x" << desktopMode.height << " (" << desktopMode.bitsPerPixel << " Bits)";
-  auto const style = sf::Style::Fullscreen;
+    << "Desktop-Resolution: "
+    << desktopMode.width << "x" << desktopMode.height
+    << " (" << desktopMode.bitsPerPixel << " Bits)";
+  sf::Uint32 const style = (desktopMode != desiredMode)
+      ? (sf::Style::Titlebar | sf::Style::Close)
+      : sf::Style::Fullscreen;
 
-  sf::Window mainWindow {desktopMode, "Oven Brick", style};
+  sf::Window mainWindow {desiredMode, "Oven Brick", style};
   mainWindow.setVerticalSyncEnabled(true);
   mainWindow.setMouseCursorVisible(false);
 

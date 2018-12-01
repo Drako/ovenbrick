@@ -17,11 +17,18 @@
 #ifndef OVENBRICK_DUMMY_GAME_STATE_HXX
 #define OVENBRICK_DUMMY_GAME_STATE_HXX
 
+#include <ddic.hxx>
+
 #include "game_state.hxx"
 
 struct DummyGameState final : public GameState
 {
-  DummyGameState() = default;
+  using autowire = ddic::inject<GameStateManager>;
+
+  explicit inline DummyGameState(std::shared_ptr<GameStateManager> gsm)
+      : GameState {gsm}
+  {
+  }
 
   ~DummyGameState() override = default;
 

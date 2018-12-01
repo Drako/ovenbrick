@@ -29,6 +29,8 @@
 #include <iostream>
 #include <unordered_map>
 
+#include <ddic.hxx>
+
 #include "game/game_state_manager.hxx"
 #include "game/game_state.hxx"
 #include "game/dummy_game_state.hxx"
@@ -99,6 +101,12 @@ bool handle_command_line(int argc, char ** argv)
   return true;
 }
 
+void configure_dependencies(ddic::container & c)
+{
+  c.register_type<GameStateManager, ddic::creation_policy::always_same>();
+  c.autowire_type<DummyGameState>();
+}
+
 /**
  * @brief Main entry point.
  * @param argc Number of command line parameters (including the program name).
@@ -127,8 +135,11 @@ int main(int argc, char ** argv)
   mainWindow.setVerticalSyncEnabled(true);
   mainWindow.setMouseCursorVisible(false);
 
-  auto & gsm = GameStateManager::singleton();
-  gsm.push_state(gsl::make_not_null(new DummyGameState));
+  ddic::container c;
+  configure_dependencies(c);
+
+  auto gsm = c.resolve<GameStateManager>();
+  gsm->push_state(c.resolve<DummyGameState>());
 
   sf::Clock clock {};
   while (mainWindow.isOpen())
@@ -139,13 +150,13 @@ int main(int argc, char ** argv)
       if (event.type == sf::Event::Closed)
         mainWindow.close();
 
-      gsm.handle_event(event);
+      gsm->handle_event(event);
     }
 
-    gsm.update(clock.restart());
+    gsm->update(clock.restart());
     mainWindow.display();
 
-    if (gsm.is_empty())
+    if (gsm->is_empty())
       mainWindow.close();
   }
   return EXIT_SUCCESS;

@@ -30,7 +30,7 @@ void DummyGameState::set_up()
 void DummyGameState::handle_event(sf::Event const & event)
 {
   if (event.type == sf::Event::KeyPressed && event.key.code == KeyboardLayout::current.m_keyMenu)
-    GameStateManager::singleton().pop_state();
+    m_gsm->pop_state();
 }
 
 void DummyGameState::update(sf::Time const & /* elapsed */)

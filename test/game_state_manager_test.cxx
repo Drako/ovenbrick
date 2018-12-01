@@ -37,8 +37,8 @@ namespace {
     Info * m_info;
 
   public:
-    explicit MockGameState(Info * info = nullptr)
-        : m_info {info}
+    explicit MockGameState(std::shared_ptr<GameStateManager> gsm, Info * info = nullptr)
+        : GameState {std::move(gsm)}, m_info {info}
     {
       if (m_info)
         *m_info = Info {};
@@ -78,63 +78,58 @@ namespace {
 
 TEST_CASE("GameStateManager", "[core][GameStateManager]")
 {
-  auto & gsm = GameStateManager::singleton();
+  auto const gsm = std::make_shared<GameStateManager>();
 
-  SECTION("GameStateManager is a singleton")
+  SECTION("GameStateManager is not a singleton, but still not copyable")
   {
-    REQUIRE(!std::is_constructible<GameStateManager>::value);
+    REQUIRE(std::is_constructible<GameStateManager>::value);
     REQUIRE(!std::is_copy_constructible<GameStateManager>::value);
     REQUIRE(!std::is_copy_assignable<GameStateManager>::value);
     REQUIRE(!std::is_move_constructible<GameStateManager>::value);
     REQUIRE(!std::is_move_assignable<GameStateManager>::value);
-
-    auto const & other = GameStateManager::singleton();
-    REQUIRE(std::addressof(gsm) == std::addressof(other));
   }
 
   SECTION("Current GameState works")
   {
     constexpr auto const NUM_GAME_STATES = 5;
 
-    std::array<GameState *, NUM_GAME_STATES> states {};
+    std::array<std::shared_ptr<GameState>, NUM_GAME_STATES> states {};
 
     for (auto n = NUM_GAME_STATES; n--;)
     {
-      states[n] = new MockGameState;
-      gsm.push_state(gsl::make_not_null(states[n]));
-      REQUIRE(std::addressof(gsm.current()) == states[n]);
+      states[n] = std::make_shared<MockGameState>(gsm);
+      gsm->push_state(states[n]);
+      REQUIRE(std::addressof(gsm->current()) == states[n].get());
     }
 
     for (auto n = 0; n < NUM_GAME_STATES; ++n)
     {
-      REQUIRE(std::addressof(gsm.current()) == states[n]);
-      gsm.pop_state();
+      REQUIRE(std::addressof(gsm->current()) == states[n].get());
+      gsm->pop_state();
     }
 
-    REQUIRE(gsm.is_empty());
+    REQUIRE(gsm->is_empty());
   }
 
   SECTION("GameStates are cleaned up")
   {
     constexpr auto const NUM_GAME_STATES = 5;
 
-    std::array<GameState *, NUM_GAME_STATES> states {};
     MockGameState::Info mockInfos[NUM_GAME_STATES];
 
     for (auto n = NUM_GAME_STATES; n--;)
     {
-      states[n] = new MockGameState {mockInfos + n};
-      gsm.push_state(gsl::make_not_null(states[n]));
+      gsm->push_state(std::make_shared<MockGameState>(gsm, mockInfos + n));
       REQUIRE(mockInfos[n].m_setup == 1);
     }
 
     for (auto n = 0; n < NUM_GAME_STATES; ++n) // NOLINT(modernize-loop-convert)
     {
-      gsm.pop_state();
+      gsm->pop_state();
       REQUIRE(mockInfos[n].m_teardown == 1);
       REQUIRE(mockInfos[n].m_destructor);
     }
 
-    REQUIRE(gsm.is_empty());
+    REQUIRE(gsm->is_empty());
   }
 }

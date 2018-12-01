@@ -14,18 +14,15 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
+
 #include "game_state_manager.hxx"
 #include "game_state.hxx"
 
-GameStateManager & GameStateManager::singleton()
+void GameStateManager::push_state(std::shared_ptr<GameState> state)
 {
-  static GameStateManager instance {};
-  return instance;
-}
-
-void GameStateManager::push_state(gsl::not_null<GameState *> state)
-{
-  m_states.push(std::unique_ptr<GameState> {state});
+  assert(state != nullptr);
+  m_states.push(state);
   current().set_up();
 }
 

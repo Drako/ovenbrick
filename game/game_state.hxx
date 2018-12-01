@@ -17,13 +17,23 @@
 #ifndef OVENBRICK_GAME_STATE_HXX
 #define OVENBRICK_GAME_STATE_HXX
 
+#include <memory>
+
 namespace sf {
   class Event;
+
   class Time;
 }
 
+class GameStateManager;
+
 struct GameState
 {
+  explicit inline GameState(std::shared_ptr<GameStateManager> gsm)
+      : m_gsm {gsm}
+  {
+  }
+
   virtual ~GameState() = default;
 
   /**
@@ -47,6 +57,9 @@ struct GameState
    * @brief Lifecycle function called when the state is removed.
    */
   virtual void tear_down() = 0;
+
+protected:
+  std::shared_ptr<GameStateManager> const m_gsm;
 };
 
 #endif // OVENBRICK_GAME_STATE_HXX
